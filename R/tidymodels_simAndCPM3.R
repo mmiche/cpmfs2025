@@ -95,14 +95,9 @@ for(m in 1:length(TrainLs)) {
     logreg_m <- applyLogreg(dataTrain=Train.m, dataTest=Test.m, frmla = fmla, outcome = "outcome")
     # head(logreg_m$TestCV)
     predProbsLs[["logreg"]][[m]] <- logreg_m$TestCV
-    
-    # # Random forest
-    # # -------------
-    # set.seed(1)
-    # rndmFrst_m <- applyRandomForest(dataTrain=Train.m, dataTest=Test.m, frmla.f = fmla.f, outcome = "outcome")
-    # predProbsLs[["rf"]][[m]] <- rndmFrst_m$TestCV
-    
+
     # Penalized logistic regression
+    # -----------------------------
     # https://parsnip.tidymodels.org/reference/glmnet-details.html
     # https://parsnip.tidymodels.org/reference/logistic_reg.html
     penLogreg_m <- parsnip::logistic_reg(mixture = double(1), penalty = .0014) %>% set_engine("glmnet") %>% fit(fmla.f, data=Train.m)
@@ -122,7 +117,9 @@ difftime(endTime, startTime) # Time difference of 1.7 mins
 
 predProbsLs <- readRDS(file="predProbsLs20250502.rds")
 
-# for(i in 1:length(predProbsLs$rf)) {
+# # If (and only if) there are predicted probabilities of exactly 0 or exactly 1, then use the winsorize_probs function (see function winsorize_probs in script tidymodels_simAndCPM2Funs.R)
+# # In this outcommented example, it would be used for the list element "logreg" of the list predProbsLs. The name of the list element can be anything, which the user specified. In this script, the list elements' names are: logreg and lasso.
+# for(i in 1:length(predProbsLs$logreg)) {
 #     predProbsLs$rf[[i]]$predicted <- winsorize_probs(x=predProbsLs$rf[[i]]$predicted)
 # }
 # 
@@ -141,14 +138,15 @@ relRes <- mysml::computeRelevantResults(
 
 # relRes$dcaLs$tableDCA[[1]]
 # 
-# relRes$orderedObsLs$logreg[[1]]
+# head(relRes$orderedObsLs$logreg[[1]])
 
-# Make the plot for logreg, first of 50 results:
+# Make the plot for logreg, first out of 50 results:
 (glmprobPlot <- plotAllPredProbs(
     data=relRes$orderedObsLs$logreg[[1]],
     thrsh = c(.04, .05, .07, .09, .11)))
 
-# Make the plot for random forest (rf), first of 50 results:
+# Make the plot for LASSO (lasso), first out of 50 results:
+# head(relRes$orderedObsLs$lasso[[1]])
 (lassoprobPlot <- plotAllPredProbs(
     data=relRes$orderedObsLs$lasso[[1]],
     thrsh = c(.04, .05, .07, .09, .11)))
@@ -217,9 +215,9 @@ min(calibLOPlot[,-5])
 max(calibLRPlot[,-5])
 max(calibLOPlot[,-5])
 
-lrCalAllSeeds <- calibPlot(calibData=calibLRPlot, calibXYmax = .5)
+(lrCalAllSeeds <- calibPlot(calibData=calibLRPlot, calibXYmax = .5))
 
-loCalAllSeeds <- calibPlot(calibData=calibLOPlot, calibXYmax = .5)
+(loCalAllSeeds <- calibPlot(calibData=calibLOPlot, calibXYmax = .5))
 
 
 # Calibration metrics (Note: I reject calibration metrics, I prefer the plot, because it shows all of the relevant calibration performance; enables more comprehensive evaluation than a single summary numeric result)
@@ -239,7 +237,7 @@ calibMetrics <- readRDS(file="calibrationMetrics20250521.rds")
 
 calibMetrics$model <- factor(calibMetrics$model, levels = c("logisticregression", "lassoregression"), labels = c("Logreg", "Lasso"))
 (calibBoxPlot <- 
-    ggplot(data=calibMetrics, aes(x=model, y=Emax)) +
+    ggplot(data=calibMetrics, aes(x=model, y=ici)) +
     geom_boxplot() +
     theme(panel.background = element_blank(),
           axis.text.x=element_text(size=16),
