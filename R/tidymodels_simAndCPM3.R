@@ -113,9 +113,9 @@ for(m in 1:length(TrainLs)) {
 endTime <- Sys.time()
 difftime(endTime, startTime) # Time difference of 1.7 mins
 
-# saveRDS(object=predProbsLs, file="predProbsLs20250521.rds")
+# saveRDS(object=predProbsLs, file="predProbsLsCPM3.rds")
 
-predProbsLs <- readRDS(file="predProbsLs20250521.rds")
+predProbsLs <- readRDS(file="predProbsLsCPM3.rds")
 
 # # If (and only if) there are predicted probabilities of exactly 0 or exactly 1, then use the winsorize_probs function (see function winsorize_probs in script tidymodels_simAndCPM2Funs.R)
 # # In this outcommented example, it would be used for the list element "logreg" of the list predProbsLs. The name of the list element can be anything, which the user specified. In this script, the list elements' names are: logreg and lasso.
@@ -229,9 +229,9 @@ colnames(calibMetrics)[9] <- "model"
 rownames(calibMetrics) <- NULL
 head(calibMetrics)
 
-# saveRDS(object=calibMetrics, file="calibrationMetrics20250521.rds")
+# saveRDS(object=calibMetrics, file="calibrationMetricsCPM3.rds")
 
-calibMetrics <- readRDS(file="calibrationMetrics20250521.rds")
+calibMetrics <- readRDS(file="calibrationMetricsCPM3.rds")
 
 # head(calibMetrics)
 
