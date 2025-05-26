@@ -93,10 +93,11 @@ for(m in 1:length(TrainLs)) {
 endTime <- Sys.time()
 difftime(endTime, startTime) # Time difference of 48.01671 mins
 
-# saveRDS(object=predProbsLs, file="predProbsLs20250502.rds")
+# saveRDS(object=predProbsLs, file="predProbsLsCPM2.rds")
 
-predProbsLs <- readRDS(file="predProbsLs20250502.rds")
+predProbsLs <- readRDS(file="predProbsLsCPM2.rds")
 
+# If predicted probabilities of exactly 0 or exaclty 1 occur, use function winsorize_probs.
 for(i in 1:length(predProbsLs$rf)) {
     predProbsLs$rf[[i]]$predicted <- winsorize_probs(x=predProbsLs$rf[[i]]$predicted)
 }
@@ -202,9 +203,9 @@ calibMetrics <- dplyr::bind_rows(calibMetrics)
 colnames(calibMetrics)[9] <- "model"
 rownames(calibMetrics) <- NULL
 
-# saveRDS(object=calibMetrics, file="calibrationMetrics.rds")
+# saveRDS(object=calibMetrics, file="calibrationMetricsCPM2.rds")
 
-calibMetrics <- readRDS(file="calibrationMetrics.rds")
+calibMetrics <- readRDS(file="calibrationMetricsCPM2.rds")
 
 # head(calibMetrics)
 
